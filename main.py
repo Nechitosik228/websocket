@@ -1,6 +1,8 @@
 import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
+from starlette.middleware.trustedhost import TrustedHostMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 
 app = FastAPI()
 
@@ -79,6 +81,10 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
+allowed_hosts = ["localhost"]
+
+app.add_middleware(TrustedHostMiddleware,allowed_hosts=allowed_hosts)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 @app.get("/")
 async def get():
@@ -99,4 +105,4 @@ async def websocket_endpoint(websocket: WebSocket, chat_id: int):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, port=8080)
+    uvicorn.run(app, port=8080, host="localhost")
